@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FairSight — AI Bias Detection Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="url(#lg)"/><path d="M10 26L18 10L26 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 21h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="lg" x1="0" y1="0" x2="36" y2="36"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+      </div>
+      <div>
+        <span class="logo-name">FairSight AI</span>
+        <span class="logo-tagline">Fairness Audit Platform</span>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="#upload-section" class="nav-link active">Analyze</a>
+      <a href="#how-it-works" class="nav-link">How It Works</a>
+      <a href="#about" class="nav-link">About</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ── Hero ───────────────────────────────────────────────────────────── -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-badge">Open Source · Free · No Data Retained</div>
+    <h1 class="hero-title">Detect Hidden Bias<br/><span class="gradient-text">Before It Harms People</span></h1>
+    <p class="hero-sub">Upload your dataset, select sensitive attributes, and get a comprehensive fairness audit — with actionable fixes — in seconds.</p>
+    <div class="hero-stats">
+      <div class="stat"><strong>5+</strong> Fairness Metrics</div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>3</strong> Mitigation Phases</div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>100%</strong> Private</div>
+    </div>
+  </div>
+  <div class="hero-scroll-indicator">
+    <span>Upload below</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5 5 5-5"/></svg>
+  </div>
+</section>
+
+<!-- ── Main App ────────────────────────────────────────────────────────── -->
+<main class="app-main">
+
+  <!-- ─ Step 1: Upload ───────────────────────────────────────────────── -->
+  <section class="step-section" id="upload-section">
+    <div class="step-header">
+      <div class="step-number">01</div>
+      <div>
+        <h2 class="step-title">Upload Your Dataset</h2>
+        <p class="step-desc">Supports CSV and JSON files. Data stays local — never sent to external servers.</p>
+      </div>
+    </div>
+
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">
+        <svg viewBox="0 0 48 48" fill="none"><path d="M24 32V16M24 16L17 23M24 16L31 23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="8" y="36" width="32" height="4" rx="2" fill="currentColor" opacity="0.3"/></svg>
+      </div>
+      <p class="upload-text">Drag &amp; drop your CSV or JSON file here</p>
+      <p class="upload-sub">or</p>
+      <label class="btn btn-primary" for="fileInput">Browse Files</label>
+      <input type="file" id="fileInput" accept=".csv,.json" style="display:none"/>
+      <p class="upload-hint">Max 50MB · CSV or JSON · Your data never leaves your browser session</p>
+    </div>
+
+    <div class="demo-strip">
+      <span class="demo-label">Try with sample data:</span>
+      <button class="demo-btn" onclick="loadSample('loan')">💼 Loan Approval</button>
+      <button class="demo-btn" onclick="loadSample('hiring')">👔 Hiring Decisions</button>
+    </div>
+
+    <!-- File loaded state -->
+    <div class="file-info-card hidden" id="fileInfoCard">
+      <div class="file-info-header">
+        <div class="file-icon">📄</div>
+        <div class="file-meta">
+          <strong id="fileName">file.csv</strong>
+          <span id="fileShape">— rows × — cols</span>
+        </div>
+        <button class="btn-icon" onclick="resetUpload()" title="Remove file">✕</button>
+      </div>
+      <div class="file-stats-row" id="fileStatsRow"></div>
+    </div>
+  </section>
+
+  <!-- ─ Step 2: Configure ────────────────────────────────────────────── -->
+  <section class="step-section hidden" id="configSection">
+    <div class="step-header">
+      <div class="step-number">02</div>
+      <div>
+        <h2 class="step-title">Configure Analysis</h2>
+        <p class="step-desc">Select which columns represent sensitive attributes and decision outcomes.</p>
+      </div>
+    </div>
+
+    <div class="config-grid">
+      <div class="config-card">
+        <label class="config-label">
+          <span class="config-label-icon">🏷️</span>
+          Sensitive Attribute
+          <span class="tooltip" data-tip="The column representing a protected characteristic (gender, race, age, etc.)">?</span>
+        </label>
+        <select id="sensitiveCol" class="select-field">
+          <option value="">Select a column…</option>
+        </select>
+        <p class="field-hint">e.g., gender, race, age_group, nationality</p>
+      </div>
+
+      <div class="config-card">
+        <label class="config-label">
+          <span class="config-label-icon">🎯</span>
+          Target / Outcome Column
+          <span class="tooltip" data-tip="The binary decision column (0 = denied, 1 = approved). Must contain 0/1 values.">?</span>
+        </label>
+        <select id="targetCol" class="select-field">
+          <option value="">Select a column…</option>
+        </select>
+        <p class="field-hint">e.g., loan_approved, hired, admitted (binary 0/1)</p>
+      </div>
+
+      <div class="config-card">
+        <label class="config-label">
+          <span class="config-label-icon">🤖</span>
+          Predicted Column <span class="optional-badge">Optional</span>
+          <span class="tooltip" data-tip="If you have model predictions, add them here to compute equalized odds and per-group accuracy.">?</span>
+        </label>
+        <select id="predictedCol" class="select-field">
+          <option value="">None (skip equalized odds)</option>
+        </select>
+        <p class="field-hint">Model's predicted outcome for equalized odds analysis</p>
+      </div>
+
+      <div class="config-card">
+        <label class="config-label">
+          <span class="config-label-icon">🔀</span>
+          Additional Sensitive Attributes <span class="optional-badge">Optional</span>
+          <span class="tooltip" data-tip="Select multiple sensitive columns for intersectional bias analysis (e.g., gender + race).">?</span>
+        </label>
+        <select id="extraSensitive" class="select-field" multiple size="4">
+        </select>
+        <p class="field-hint">Hold Ctrl/Cmd to select multiple for intersectional analysis</p>
+      </div>
+    </div>
+
+    <!-- Preview Table -->
+    <div class="preview-section">
+      <h3 class="preview-title">Dataset Preview <span id="previewRowCount"></span></h3>
+      <div class="table-scroll" id="previewTable"></div>
+    </div>
+
+    <div class="analyze-bar">
+      <button class="btn btn-analyze" id="analyzeBtn" onclick="runAnalysis()">
+        <span class="btn-icon-left">🔍</span>
+        Run Fairness Analysis
+      </button>
+      <p class="analyze-note">Analysis runs locally in your browser session</p>
+    </div>
+  </section>
+
+  <!-- ─ Step 3: Results ──────────────────────────────────────────────── -->
+  <section class="step-section hidden" id="resultsSection">
+    <div class="step-header">
+      <div class="step-number">03</div>
+      <div>
+        <h2 class="step-title">Fairness Audit Report</h2>
+        <p class="step-desc" id="resultsDatasetDesc">Analysis results for your dataset</p>
+      </div>
+      <div class="result-actions">
+        <button class="btn btn-outline" onclick="exportReport()">📥 Export JSON</button>
+        <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+        <button class="btn btn-secondary" onclick="resetAll()">🔄 New Analysis</button>
+      </div>
+    </div>
+
+    <!-- Overall Score Banner -->
+    <div class="score-banner" id="scoreBanner">
+      <div class="score-left">
+        <div class="score-ring-wrap">
+          <canvas id="scoreCanvas" width="140" height="140"></canvas>
+          <div class="score-value" id="scoreValue">--</div>
+        </div>
+        <div class="score-info">
+          <h3 id="scoreLabel">Fairness Score</h3>
+          <p id="scoreDescription">Running analysis…</p>
+        </div>
+      </div>
+      <div class="score-metrics-row" id="scoreMetrics"></div>
+    </div>
+
+    <!-- Flags -->
+    <div class="flags-section" id="flagsSection"></div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3 class="chart-title">Outcome Rate by Group</h3>
+        <div class="chart-wrap" id="barChartWrap">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Group Representation</h3>
+        <div class="chart-wrap" id="pieChartWrap">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Metrics -->
+    <div class="metrics-grid" id="metricsGrid"></div>
+
+    <!-- Equalized Odds (if available) -->
+    <div class="eq-odds-section hidden" id="eqOddsSection">
+      <h3 class="section-heading">⚖️ Equalized Odds Analysis</h3>
+      <div class="eq-odds-grid" id="eqOddsGrid"></div>
+    </div>
+
+    <!-- Intersectional -->
+    <div class="intersect-section hidden" id="intersectSection">
+      <h3 class="section-heading">🔀 Intersectional Bias Analysis</h3>
+      <p class="section-sub">Outcome rates across combinations of sensitive attributes</p>
+      <div id="intersectGrid"></div>
+    </div>
+
+    <!-- Correlation Heatmap -->
+    <div class="corr-section hidden" id="corrSection">
+      <h3 class="section-heading">📈 Feature Correlation with Sensitive Attribute</h3>
+      <p class="section-sub">How strongly each feature correlates with the sensitive attribute (potential proxy discrimination)</p>
+      <div id="corrBars"></div>
+    </div>
+
+    <!-- Mitigation Strategies -->
+    <div class="mit-section">
+      <h3 class="section-heading">🛠️ Recommended Mitigation Strategies</h3>
+      <p class="section-sub">Evidence-based techniques to reduce bias at each stage of your ML pipeline</p>
+  
+    <div class="mit-phases" id="mitPhases"></div>
+    </div>
+<!-- Gemini Fairness Advisor -->
+    <div class="chart-card" style="margin-top:30px;">
+    <h3 class="section-heading">
+        🤖 AI Fairness Advisor
+    </h3>
+
+    <p id="ai-advice-box">
+        AI suggestions will appear here after analysis.
+    </p>
+
+    <p class="section-sub">
+        Powered by Google Gemini AI
+    </p>
+</div>
+</section>
+
+</main>
+
+<!-- ── How It Works ────────────────────────────────────────────────────── -->
+<section class="info-section" id="how-it-works">
+  <div class="info-inner">
+    <h2 class="info-title">How FairSight Works</h2>
+    <p class="info-sub">A transparent, multi-metric approach to fairness auditing</p>
+    <div class="metrics-explainer">
+      <div class="metric-card">
+        <div class="metric-icon" style="background:#6366f1">📏</div>
+        <h4>Disparate Impact (80% Rule)</h4>
+        <p>Measures whether the selection rate for a disadvantaged group is at least 80% of the most advantaged group. The legal standard used by the EEOC.</p>
+        <code>DI = min(rate) / max(rate)</code>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon" style="background:#f59e0b">⚖️</div>
+        <h4>Statistical Parity Difference</h4>
+        <p>Measures the raw gap in positive outcome rates between groups. A difference of 0 means all groups receive the same proportion of positive outcomes.</p>
+        <code>SPD = P(Ŷ=1|A=0) − P(Ŷ=1|A=1)</code>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon" style="background:#10b981">🎯</div>
+        <h4>Equalized Odds</h4>
+        <p>Requires equal true positive rates AND false positive rates across groups. Prevents both under-serving and over-penalizing minority groups.</p>
+        <code>TPR_A = TPR_B, FPR_A = FPR_B</code>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon" style="background:#ec4899">🔀</div>
+        <h4>Intersectional Analysis</h4>
+        <p>Examines bias across combinations of sensitive attributes (e.g., gender × race). Single-attribute analysis often misses compounding discrimination.</p>
+        <code>P(Y|A=a, B=b) vs P(Y|A=a', B=b')</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── About ───────────────────────────────────────────────────────────── -->
+<section class="about-section" id="about">
+  <div class="info-inner">
+    <div class="about-grid">
+      <div>
+        <h2 class="info-title">Why This Matters</h2>
+        <p>Algorithmic systems now make consequential decisions about who gets a job, a loan, medical treatment, or parole. When these systems learn from historically biased data, they don't just reflect past discrimination — they <strong>amplify and automate</strong> it at scale.</p>
+        <p>FairSight gives organizations a transparent, accessible tool to audit their systems <em>before</em> deployment — not after harm is done.</p>
+      </div>
+      <div class="about-principles">
+        <h3>Our Principles</h3>
+        <ul>
+          <li>✅ No data ever leaves your machine</li>
+          <li>✅ Open methodology — every metric explained</li>
+          <li>✅ Actionable, not just alarming</li>
+          <li>✅ Multiple fairness frameworks — no single definition</li>
+          <li>✅ Built for non-technical stakeholders too</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <div class="logo-icon small">
+        <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="url(#lg2)"/><path d="M10 26L18 10L26 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 21h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="lg2" x1="0" y1="0" x2="36" y2="36"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+      </div>
+      <span>FairSight</span>
+    </div>
+    <p>Built to help organizations detect and fix AI bias before it harms real people.</p>
+    <p class="footer-copy">© 2026 FairSight · Data never stored · Flask + Python backend · Chart.js visualization</p>
+  </div>
+</footer>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay hidden" id="loadingOverlay">
+  <div class="loading-card">
+    <div class="spinner"></div>
+    <h3 id="loadingTitle">Analyzing Dataset…</h3>
+    <p id="loadingStep">Computing fairness metrics</p>
+    <div class="loading-steps">
+      <div class="lstep active" id="ls1">📊 Disparate Impact</div>
+      <div class="lstep" id="ls2">⚖️ Statistical Parity</div>
+      <div class="lstep" id="ls3">🎯 Equalized Odds</div>
+      <div class="lstep" id="ls4">🔀 Intersectional</div>
+      <div class="lstep" id="ls5">🛠️ Mitigations</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
